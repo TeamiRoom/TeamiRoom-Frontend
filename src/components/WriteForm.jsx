@@ -248,7 +248,9 @@ export default function WriteForm({ id: propId }) {
     }
   };
 
+  // 날짜와 시간 포맷 함수
   const formatDateTime = (dateTimeString) => {
+    if (!dateTimeString) return '';
     try {
       const d = new Date(dateTimeString);
       const yyyy = d.getFullYear();
@@ -299,7 +301,7 @@ export default function WriteForm({ id: propId }) {
           <p>👥 인원 수: {count}명</p>
           <p>📌 모임명: {title}</p>
           <p>📅 날짜: {date}</p>
-          <p>⏰ 마감 기한: {deadline}</p>
+          <p>⏰ 마감 기한: {deadline ? formatDateTime(deadline) : '없음'}</p>
         </div>
 
         <label className="form-label">오늘은 어떤 메뉴가 마음에 끌리시나요?</label>
