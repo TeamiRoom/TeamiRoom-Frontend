@@ -280,7 +280,7 @@ export default function WriteForm({ id: propId }) {
           <p><strong>약속명:</strong> {finalResult.promiseName}</p>
           <p><strong>약속 날짜:</strong> {formatDateTime(finalResult.promiseDate)}</p>
           <div className="final-result-box">
-            <h3>AI 조율 결과</h3>
+            <h3>속닥약속 조율이의 조율 제안</h3>
             <p className="final-coordination" style={{ whiteSpace: 'pre-line' }}>{finalResult.finalCoordination}</p>
             <p className="generated-time">생성 시간: {formatDateTime(finalResult.generatedAt)}</p>
           </div>
