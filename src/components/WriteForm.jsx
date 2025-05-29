@@ -6,7 +6,7 @@ import { promiseAPI } from "../services/api";
 export default function WriteForm({ id: propId }) {
   const params = useParams();
   const location = useLocation();
-  const { id: locationId, count: stateCount, title: stateTitle, date: stateDate } = location.state || {};
+  const { id: locationId, count: stateCount, title: stateTitle, date: stateDate, deadline: stateDeadline } = location.state || {};
 
   // URL 파라미터, props, 또는 location state에서 ID 가져오기
   const id = params.id || propId || locationId;
@@ -26,6 +26,7 @@ export default function WriteForm({ id: propId }) {
   const [count, setCount] = useState(stateCount || "");
   const [title, setTitle] = useState(stateTitle || "");
   const [date, setDate] = useState(stateDate || "");
+  const [deadline, setDeadline] = useState(stateDeadline || ""); // 임시 마감 기한 설정
 
   // 약속 현황 및 제출 상태 추적
   const [submitted, setSubmitted] = useState(false);
@@ -247,7 +248,9 @@ export default function WriteForm({ id: propId }) {
     }
   };
 
+  // 날짜와 시간 포맷 함수
   const formatDateTime = (dateTimeString) => {
+    if (!dateTimeString) return '';
     try {
       const d = new Date(dateTimeString);
       const yyyy = d.getFullYear();
@@ -277,8 +280,8 @@ export default function WriteForm({ id: propId }) {
           <p><strong>약속명:</strong> {finalResult.promiseName}</p>
           <p><strong>약속 날짜:</strong> {formatDateTime(finalResult.promiseDate)}</p>
           <div className="final-result-box">
-            <h3>AI 조율 결과</h3>
-            <p className="final-coordination">{finalResult.finalCoordination}</p>
+            <h3>속닥약속 조율이의 조율 제안</h3>
+            <p className="final-coordination" style={{ whiteSpace: 'pre-line' }}>{finalResult.finalCoordination}</p>
             <p className="generated-time">생성 시간: {formatDateTime(finalResult.generatedAt)}</p>
           </div>
           <button className="form-button" onClick={() => window.location.reload()}>
@@ -298,7 +301,7 @@ export default function WriteForm({ id: propId }) {
           <p>👥 인원 수: {count}명</p>
           <p>📌 모임명: {title}</p>
           <p>📅 날짜: {date}</p>
-          {promiseInfo?.deadline && <p>⏰ 마감 기한: {formatDateTime(promiseInfo.deadline)}</p>}
+          <p>⏰ 마감 기한: {deadline ? formatDateTime(deadline) : '없음'}</p>
         </div>
 
         <label className="form-label">오늘은 어떤 메뉴가 마음에 끌리시나요?</label>

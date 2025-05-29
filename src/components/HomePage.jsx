@@ -81,7 +81,7 @@ function HomePage() {
 
     // 항상 /promise/{id} 경로로 이동하도록 통일
     if (promiseId) {
-      navigate(`/promise/${promiseId}`);
+      navigate(`/promise/${promiseId}`, { state: { ...promiseData } });
     }
   };
 
