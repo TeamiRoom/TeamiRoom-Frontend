@@ -92,5 +92,73 @@
     color: #333;
     text-align: left;
   }
-  
-  
+
+/* 팝업 스타일 */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup-container {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  padding: 8px;
+  max-width: 320px;
+  width: 90%;
+  animation: popup-fade-in 0.3s ease-out;
+}
+
+.popup-content {
+  padding: 16px;
+  text-align: center;
+}
+
+.popup-content h3 {
+  font-size: 18px;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.popup-content p {
+  font-size: 14px;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  color: #555;
+}
+
+.popup-button {
+  background-color: #000;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-top: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.popup-button:hover {
+  background-color: #333;
+}
+
+@keyframes popup-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
