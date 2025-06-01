@@ -33,6 +33,9 @@ export default function WriteForm({ id: propId }) {
   const [promiseStatus, setPromiseStatus] = useState(null);
   const [allSubmitted, setAllSubmitted] = useState(false);
 
+  // 제출 완료 팝업 상태
+  const [showPopup, setShowPopup] = useState(false);
+
   useEffect(() => {
     if (activityInputRef.current) {
       activityInputRef.current.focus();
@@ -208,7 +211,28 @@ export default function WriteForm({ id: propId }) {
       const result = await response.json();
       console.log("제출 결과:", result);
 
-      alert("약속서가 성공적으로 제출되었습니다!");
+      // 약속 현황 조회하여 마지막 제출자인지 확인
+      let isLastSubmitter = false;
+
+      try {
+        const statusResponse = await promiseAPI.getPromiseStatus(id);
+        if (statusResponse.ok) {
+          const statusData = await statusResponse.json();
+          // 제출 후 상태 업데이트
+          setPromiseStatus(statusData);
+
+          // 마지막 제출자인지 확인 (제출 완료 수 = 총 참가자 수 - 1 + 현재 제출)
+          isLastSubmitter = statusData.submittedCount >= statusData.totalParticipants;
+          setAllSubmitted(isLastSubmitter);
+
+          console.log(`제출 현황: ${statusData.submittedCount}/${statusData.totalParticipants} 완료, 마지막 제출자: ${isLastSubmitter}`);
+        }
+      } catch (error) {
+        console.error("약속 현황 조회 실패:", error);
+      }
+
+      // 팝업창 표시 (기존 alert 대체) - 마지막 제출자 여부에 따라 메시지 변경
+      setShowPopup(true);
       setSubmitted(true);
 
       // 제출 후 정보와 최종 결과를 다시 조회
@@ -219,22 +243,11 @@ export default function WriteForm({ id: propId }) {
           setPromiseInfo(await infoResponse.json());
         }
 
-        // 약속 현황 조회
-        const statusResponse = await promiseAPI.getPromiseStatus(id);
-        if (statusResponse.ok) {
-          const statusData = await statusResponse.json();
-          setPromiseStatus(statusData);
-
-          // 모든 참가자가 제출했는지 확인
-          const isAllSubmitted = statusData.submittedCount === statusData.totalParticipants;
-          setAllSubmitted(isAllSubmitted);
-
-          // 모든 참가자가 제출한 경우에만 최종 결과 조회
-          if (isAllSubmitted) {
-            const finalResponse = await promiseAPI.getFinalResult(id);
-            if (finalResponse.ok) {
-              setFinalResult(await finalResponse.json());
-            }
+        // 마지막 제출자인 경우 최종 결과 조회
+        if (isLastSubmitter) {
+          const finalResponse = await promiseAPI.getFinalResult(id);
+          if (finalResponse.ok) {
+            setFinalResult(await finalResponse.json());
           }
         }
       } catch (refreshError) {
@@ -285,7 +298,7 @@ export default function WriteForm({ id: propId }) {
             <p className="generated-time">생성 시간: {formatDateTime(finalResult.generatedAt)}</p>
           </div>
           <button className="form-button" onClick={() => window.location.reload()}>
-            다시 확인하기
+            이미지 저장하기
           </button>
         </div>
       </div>
@@ -304,7 +317,7 @@ export default function WriteForm({ id: propId }) {
           <p>⏰ 마감 기한: {deadline ? formatDateTime(deadline) : '없음'}</p>
         </div>
 
-        <label className="form-label">오늘은 어떤 메뉴가 마음에 끌리시나요?</label>
+        <label className="form-label">어떤 메뉴가 마음에 끌리시나요?</label>
         <textarea
           className="form-textarea"
           placeholder="예: 마라탕, 초밥, 삼겹살..."
@@ -312,7 +325,7 @@ export default function WriteForm({ id: propId }) {
           onChange={(e) => setMenu(e.target.value)}
         />
 
-        <label className="form-label">오늘은 어떤 걸 하면서 즐기고 싶으세요?</label>
+        <label className="form-label">어떤 걸 하면서 즐기고 싶으세요?</label>
         <textarea
           ref={activityInputRef}
           className="form-textarea"
@@ -321,7 +334,7 @@ export default function WriteForm({ id: propId }) {
           onChange={(e) => setActivity(e.target.value)}
         />
 
-        <label className="form-label">오늘의 꾸밈 정도는?</label>
+        <label className="form-label">꾸밈 정도는?</label>
         <div className="range-wrapper" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <input
             type="range"
@@ -342,7 +355,44 @@ export default function WriteForm({ id: propId }) {
           {loading ? "제출 중..." : "약속서 제출하기"}
         </button>
       </div>
+
+      {/* 제출 완료 팝업 */}
+      {showPopup && (
+        <div className="popup-overlay">
+          <div className="popup-container">
+            <div className="popup-content">
+              <h3>✅ 약속서 제출 완료</h3>
+              <p>약속서가 성공적으로 제출되었습니다!</p>
+
+              {allSubmitted ? (
+                <>
+                  <p className="special-notice">🎉 축하합니다! 모든 참가자의 제출이 완료되었습니다.</p>
+                  <p>잠시 후 화면이 새로고침되어 최종 약속 조율 결과를 확인하실 수 있습니다.</p>
+                </>
+              ) : (
+                <p>모든 참가자가 제출하면 최종 조율 결과를 확인할 수 있습니다.</p>
+              )}
+
+              <button
+                className="popup-button"
+                onClick={() => {
+                  setShowPopup(false);
+                  // 모든 참가자가 제출했다면 3초 후 화면을 새로고침하여 최종 결과 표시
+                  if (allSubmitted) {
+                    setTimeout(() => {
+                      window.location.reload();
+                    }, 3000);
+                  }
+                }}
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
 

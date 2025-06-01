@@ -24,7 +24,7 @@ export default function MeetingForm({ onSubmit, isLoading = false }) {
   };
 
   const today = new Date();
-  const month = today.getMonth() + 1;
+  const month =  today.getMonth() + 1;
   const day = today.getDate();
 
   // 폼 유효성 검사
