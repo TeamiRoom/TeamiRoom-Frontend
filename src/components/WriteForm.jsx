@@ -298,7 +298,7 @@ export default function WriteForm({ id: propId }) {
             <p className="generated-time">생성 시간: {formatDateTime(finalResult.generatedAt)}</p>
           </div>
           <button className="form-button" onClick={() => window.location.reload()}>
-            다시 확인하기
+            이미지 저장하기
           </button>
         </div>
       </div>
@@ -394,4 +394,5 @@ export default function WriteForm({ id: propId }) {
     </div>
   );
 }
+
 
